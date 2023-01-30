@@ -101,6 +101,28 @@ namespace AwesomeCompany.Controllers
         }
 
 
+        [Route("DeleteEmployee_v2/{id}")]
+        [HttpDelete]
+        public async Task<ActionResult<Company>> DeleteEmployeeV2(int id, decimal salaryThreshold)
+        {
+            var company = await _databaseContext
+                .Set<Company>()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (company is null)
+            {
+                return NotFound(
+                    $"The company with Id '{id}' was not found.");
+            }
+
+            await _databaseContext.Set<Employee>()
+                .Where(e => e.CompanyId == company.Id && e.Salary > salaryThreshold)
+                .ExecuteDeleteAsync();
+
+            return NoContent();
+        }
+
+
         [Route("IncreaseSalariesSql/{id}")]
         [HttpPut]
         public async Task<ActionResult<Company>> IncreaseSalariesSql(int id)
